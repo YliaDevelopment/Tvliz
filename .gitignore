@@ -13,6 +13,7 @@ nukkit-core/build
 nukkit-core/build/*
 nukkit-loader/build
 nukkit-loader/build/*
+bin/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
