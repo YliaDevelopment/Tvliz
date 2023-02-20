@@ -1,18 +1,22 @@
 package org.tvliz;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
 import com.whirvis.jraknet.session.RakNetClientSession;
+import com.whirvis.jraknet.session.RakNetSession;
 import com.whirvis.jraknet.util.RakNetUtils;
 
 public class TvlizServerListener implements RakNetServerListener
 {
 
     private final Tvliz tvliz;
+    private Map<RakNetSession, Client> clients = new HashMap<>();
 
     public TvlizServerListener(Tvliz tvliz)
     {
@@ -34,19 +38,25 @@ public class TvlizServerListener implements RakNetServerListener
     @Override
     public void onClientConnect(RakNetClientSession session)
     {
-        System.out.println(session.getConnectionType().getName() + " client from " + session.getAddress() + " connected to the server");
+        var client = new Client(session);
+        client.onConnect();
+        this.clients.put(session, client);
     }
 
     @Override
     public void onClientDisconnect(RakNetClientSession session, String reason)
     {
-        System.out.println(session.getConnectionType() + " client from " + session.getAddress() + " disconnected from the server. Reason: " + reason);
+        var client = this.clients.get(session);
+        client.onDisconnect(reason);
+        this.clients.remove(session);
     }
 
     @Override
     public void handleMessage(RakNetClientSession session, RakNetPacket packet, int channel)
     {
-        System.out.println("Received packet from " + session.getConnectionType().getName() + " client with address " + session.getAddress() + " with packet id [Byte] " + packet.readUnsignedByte() + "/ [HexToStrId] " + RakNetUtils.toHexStringId(packet) + " on channel " + channel);
+               var client = this.clients.get(session);
+               client.onNewPacket(packet, channel);
+
     }
 
     @Override
