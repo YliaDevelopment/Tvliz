@@ -1,5 +1,6 @@
 package org.tvliz;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 
 import org.apache.commons.cli.ParseException;
@@ -17,7 +18,7 @@ public class Tvliz {
     this.server.start();
   }
 
-  public static void main(String[] args) throws ParseException, UnknownHostException {
+  public static void main(String[] args) throws ParseException, IOException {
     var server = new TvlizServer();
 
     server.init(args);

@@ -1,6 +1,7 @@
 package org.tvliz;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
@@ -43,7 +44,7 @@ public class TvlizServer {
             configPath = cmdline.getOptionValue("c");
         }
 
-        this.configuration = new Config(configPath, new LinkedHashMap<String, Object>() {{
+        this.configuration = new Config(configPath, new LinkedHashMap<>() {{
             put("RemoteServer", new LinkedHashMap<String, Object>() {{
                 put("Address", "127.0.0.1");
                 put("Port", 19133);
@@ -51,7 +52,7 @@ public class TvlizServer {
         }});
 
         if (!this.configuration.isValid()) {
-            throw new IllegalStateException("The configuration file is not valid!");
+            System.out.println("Warning: The configuration file is not valid!");
         }
 
         this.configuration.save();
@@ -63,8 +64,12 @@ public class TvlizServer {
             throw new RuntimeException("The RemoteServer key is non-existent or it does not have the Address and Port field in it!");
         }
 
-        this.remoteAddress = InetAddress.getByName((String) this.configuration.getAsMap("RemoteServer").get("Address"));
-        this.remotePort = Short.valueOf((String) this.configuration.getAsMap("RemoteServer").get("Port"));
+        var rm = this.configuration.getAsMap("RemoteServer");
+
+        this.remoteAddress = InetAddress.getByName((String) rm.get("Address"));
+        this.remotePort = Short.parseShort(String.valueOf((rm.get("Port"))));
+
+        System.out.println("Configuration loaded!");
     }
 
     public boolean isRunning() {
@@ -77,7 +82,7 @@ public class TvlizServer {
     public void destroy() {
     }
 
-    public void start() {
+    public void start() throws IOException {
         if (this.running)
             throw new IllegalStateException("You can't start a server that is already running!");
         

@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 public class Config extends LinkedHashMap<String, Object> {
 
     private boolean valid;
-    private String configPath;
+    private final String configPath;
 
     public Config(String path) {
         this(path, null);
@@ -54,6 +54,7 @@ public class Config extends LinkedHashMap<String, Object> {
     }
 
     public LinkedHashMap<String, Object> getAsMap(String key) {
+        //noinspection unchecked
         return (LinkedHashMap<String, Object>) this.get(key);
     }
 
@@ -70,7 +71,7 @@ public class Config extends LinkedHashMap<String, Object> {
             var fileOutputStream = new FileOutputStream(file);
 
             fileOutputStream.write(
-                    yaml.dumpAs(new LinkedHashMap<String, Object>(this), Tag.MAP, FlowStyle.BLOCK)
+                    yaml.dumpAs(new LinkedHashMap<>(this), Tag.MAP, FlowStyle.BLOCK)
                         .getBytes(StandardCharsets.UTF_8));
 
             fileOutputStream.close();
@@ -80,5 +81,4 @@ public class Config extends LinkedHashMap<String, Object> {
     public boolean isValid() {
         return this.valid;
     }
-
 }
