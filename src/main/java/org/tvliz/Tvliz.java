@@ -1,5 +1,9 @@
 package org.tvliz;
 
+import java.net.UnknownHostException;
+
+import org.apache.commons.cli.ParseException;
+
 import com.whirvis.jraknet.RakNetException;
 import com.whirvis.jraknet.server.RakNetServer;
 
@@ -13,12 +17,18 @@ public class Tvliz {
     this.server.start();
   }
 
-  public static void main(String[] args) {
-    try {
-      new Tvliz(new RakNetServer(9999, 10));
-    } catch (IllegalStateException | RakNetException e) {
-      e.printStackTrace();
+  public static void main(String[] args) throws ParseException, UnknownHostException {
+    var server = new TvlizServer();
+
+    server.init(args);
+
+    server.start();
+
+    while (server.isRunning()) {
+      server.tick();
     }
+
+    server.destroy();
   }
 
   public RakNetServer getServer() {

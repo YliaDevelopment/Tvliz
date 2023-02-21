@@ -1,22 +1,17 @@
 package org.tvliz;
 
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.whirvis.jraknet.RakNetPacket;
 import com.whirvis.jraknet.identifier.MinecraftIdentifier;
 import com.whirvis.jraknet.server.RakNetServerListener;
 import com.whirvis.jraknet.server.ServerPing;
 import com.whirvis.jraknet.session.RakNetClientSession;
-import com.whirvis.jraknet.session.RakNetSession;
-import com.whirvis.jraknet.util.RakNetUtils;
+
+import java.net.InetSocketAddress;
 
 public class TvlizServerListener implements RakNetServerListener
 {
 
     private final Tvliz tvliz;
-    private Map<RakNetSession, Client> clients = new HashMap<>();
 
     public TvlizServerListener(Tvliz tvliz)
     {
@@ -38,25 +33,16 @@ public class TvlizServerListener implements RakNetServerListener
     @Override
     public void onClientConnect(RakNetClientSession session)
     {
-        var client = new Client(session);
-        client.onConnect();
-        this.clients.put(session, client);
     }
 
     @Override
     public void onClientDisconnect(RakNetClientSession session, String reason)
     {
-        var client = this.clients.get(session);
-        client.onDisconnect(reason);
-        this.clients.remove(session);
     }
 
     @Override
     public void handleMessage(RakNetClientSession session, RakNetPacket packet, int channel)
     {
-               var client = this.clients.get(session);
-               client.onNewPacket(packet, channel);
-
     }
 
     @Override
