@@ -1,7 +1,7 @@
 package org.tvliz.config;
 
-import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.DumperOptions.FlowStyle;
+import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 
 import java.io.File;
@@ -12,8 +12,8 @@ import java.util.LinkedHashMap;
 
 public class Config extends LinkedHashMap<String, Object> {
 
-    private boolean valid;
     private final String configPath;
+    private boolean valid;
 
     public Config(String path) {
         this(path, null);
@@ -36,7 +36,7 @@ public class Config extends LinkedHashMap<String, Object> {
 
     private void init() {
         if (this.configPath == null ||
-            this.configPath.isEmpty()) {
+                this.configPath.isEmpty()) {
 
             this.valid = false;
             return;
@@ -72,10 +72,11 @@ public class Config extends LinkedHashMap<String, Object> {
 
             fileOutputStream.write(
                     yaml.dumpAs(new LinkedHashMap<>(this), Tag.MAP, FlowStyle.BLOCK)
-                        .getBytes(StandardCharsets.UTF_8));
+                            .getBytes(StandardCharsets.UTF_8));
 
             fileOutputStream.close();
-        } catch (Exception ignore) { }
+        } catch (Exception ignore) {
+        }
     }
 
     public boolean isValid() {

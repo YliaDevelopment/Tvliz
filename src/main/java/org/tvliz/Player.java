@@ -1,14 +1,14 @@
 package org.tvliz;
 
-import java.net.InetAddress;
-
 import com.whirvis.jraknet.session.RakNetSession;
 
+import java.net.InetAddress;
+
 public class Player {
-    
-    private RakNetSession session;
-    private InetAddress address;
-    private short port;
+
+    private final RakNetSession session;
+    private final InetAddress address;
+    private final short port;
 
     public Player(RakNetSession session) {
         this.session = session;

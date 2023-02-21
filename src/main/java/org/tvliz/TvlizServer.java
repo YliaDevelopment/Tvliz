@@ -1,20 +1,19 @@
 package org.tvliz;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.LinkedHashMap;
-
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.tvliz.config.Config;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.LinkedHashMap;
+
 public class TvlizServer {
 
-    private LinkedHashMap<String, Player> sessions;
+    private final LinkedHashMap<String, Player> sessions;
 
     private Config configuration;
 
@@ -30,11 +29,11 @@ public class TvlizServer {
 
     public void init(String[] args) throws ParseException, UnknownHostException {
         var options = new Options()
-            .addOption(Option.builder("c")
-                .longOpt("config-path")
-                .desc("Set the tvliz proxy configuration path")
-                .build());
-        
+                .addOption(Option.builder("c")
+                        .longOpt("config-path")
+                        .desc("Set the tvliz proxy configuration path")
+                        .build());
+
         var parser = new DefaultParser();
         var cmdline = parser.parse(options, args);
 
@@ -58,9 +57,9 @@ public class TvlizServer {
         this.configuration.save();
 
         if (!this.configuration.containsKey("RemoteServer") ||
-            !this.configuration.getAsMap("RemoteServer").containsKey("Address") ||
-            !this.configuration.getAsMap("RemoteServer").containsKey("Port")) {
-            
+                !this.configuration.getAsMap("RemoteServer").containsKey("Address") ||
+                !this.configuration.getAsMap("RemoteServer").containsKey("Port")) {
+
             throw new RuntimeException("The RemoteServer key is non-existent or it does not have the Address and Port field in it!");
         }
 
@@ -85,16 +84,15 @@ public class TvlizServer {
     public void start() throws IOException {
         if (this.running)
             throw new IllegalStateException("You can't start a server that is already running!");
-        
+
         if (this.remoteAddress == null ||
-            !this.remoteAddress.isReachable(1) ||
-            this.remotePort < 0 || this.remotePort > 65535) {
-            
+                !this.remoteAddress.isReachable(1) ||
+                this.remotePort < 0 || this.remotePort > 65535) {
+
         }
 
         this.running = true;
     }
-    
 
 
 }
