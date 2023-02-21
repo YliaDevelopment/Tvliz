@@ -47,6 +47,13 @@ public class TvlizServerListener implements RakNetServerListener {
 
     @Override
     public void handleMessage(RakNetClientSession session, RakNetPacket packet, int channel) {
+        Client client = this.sessions.get(session);
+
+        try {
+            client.onPacket(packet, channel);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
