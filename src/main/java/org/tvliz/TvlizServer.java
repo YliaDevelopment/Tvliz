@@ -1,10 +1,13 @@
 package org.tvliz;
 
+import com.whirvis.jraknet.RakNetException;
+import com.whirvis.jraknet.server.RakNetServer;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.tvliz.config.Config;
+import org.tvliz.config.RawConfig;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -13,18 +16,16 @@ import java.util.LinkedHashMap;
 
 public class TvlizServer {
 
-    private final LinkedHashMap<String, Player> sessions;
-
     private Config configuration;
 
     private boolean running;
+   private final RakNetServer inner;
 
-    private InetAddress remoteAddress;
-    private int remotePort;
+    public TvlizServer(RakNetServer raknetServer) {
+        this.inner = raknetServer;
 
-    public TvlizServer() {
         this.running = false;
-        this.sessions = new LinkedHashMap<String, Player>();
+        this.inner.addListener(new TvlizServerListener(raknetServer));
     }
 
     public void init(String[] args) throws ParseException, UnknownHostException {
@@ -43,12 +44,7 @@ public class TvlizServer {
             configPath = cmdline.getOptionValue("c");
         }
 
-        this.configuration = new Config(configPath, new LinkedHashMap<>() {{
-            put("RemoteServer", new LinkedHashMap<String, Object>() {{
-                put("Address", "127.0.0.1");
-                put("Port", 19133);
-            }});
-        }});
+        this.configuration = new Config(configPath);
 
         if (!this.configuration.isValid()) {
             System.out.println("Warning: The configuration file is not valid!");
@@ -56,17 +52,6 @@ public class TvlizServer {
 
         this.configuration.save();
 
-        if (!this.configuration.containsKey("RemoteServer") ||
-                !this.configuration.getAsMap("RemoteServer").containsKey("Address") ||
-                !this.configuration.getAsMap("RemoteServer").containsKey("Port")) {
-
-            throw new RuntimeException("The RemoteServer key is non-existent or it does not have the Address and Port field in it!");
-        }
-
-        var rm = this.configuration.getAsMap("RemoteServer");
-
-        this.remoteAddress = InetAddress.getByName((String) rm.get("Address"));
-        this.remotePort = Short.parseShort(String.valueOf((rm.get("Port"))));
 
         System.out.println("Configuration loaded!");
     }
@@ -81,18 +66,20 @@ public class TvlizServer {
     public void destroy() {
     }
 
-    public void start() throws IOException {
+    public void start() throws IOException, RakNetException {
         if (this.running)
             throw new IllegalStateException("You can't start a server that is already running!");
 
-        if (this.remoteAddress == null ||
-                !this.remoteAddress.isReachable(1) ||
-                this.remotePort < 0 || this.remotePort > 65535) {
+        if (configuration.remoteAddress == null ||
+                !configuration.remoteAddress.isReachable(1) ||
+                configuration.remotePort < 0 || configuration.remotePort > 65535) {
 
+            System.out.println("Remote is unreachable or invalid!");
+            System.exit(1);
         }
 
+        System.out.println("Server is running!");
+        this.inner.start();
         this.running = true;
     }
-
-
 }

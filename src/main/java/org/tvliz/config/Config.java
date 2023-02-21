@@ -1,85 +1,42 @@
 package org.tvliz.config;
 
-import org.yaml.snakeyaml.DumperOptions.FlowStyle;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.nodes.Tag;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.charset.StandardCharsets;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 
-public class Config extends LinkedHashMap<String, Object> {
 
-    private final String configPath;
-    private boolean valid;
+public class Config {
+    private final RawConfig raw;
+    public InetAddress remoteAddress;
+    public int remotePort;
 
-    public Config(String path) {
-        this(path, null);
-    }
+    public Config(String configPath) throws UnknownHostException {
+        this.raw = new RawConfig(configPath, new LinkedHashMap<>() {{
+            put("RemoteServer", new LinkedHashMap<String, Object>() {{
+                put("Address", "127.0.0.1");
+                put("Port", 19133);
+            }});
+        }});
 
-    public Config(File file) {
-        this(file.getAbsolutePath(), null);
-    }
 
-    public Config(String path, LinkedHashMap<String, Object> defaults) {
-        this.configPath = path;
-        this.valid = true;
+        if (!this.raw.containsKey("RemoteServer") ||
+                !this.raw.getAsMap("RemoteServer").containsKey("Address") ||
+                !this.raw.getAsMap("RemoteServer").containsKey("Port")) {
 
-        if (defaults != null) {
-            this.putAll(defaults);
+            throw new RuntimeException("The RemoteServer key is non-existent or it does not have the Address and Port field in it!");
         }
 
-        this.init();
-    }
+        var rm = this.raw.getAsMap("RemoteServer");
 
-    private void init() {
-        if (this.configPath == null ||
-                this.configPath.isEmpty()) {
-
-            this.valid = false;
-            return;
-        }
-
-        try {
-            var fileInputStream = new FileInputStream(this.configPath);
-            var yaml = new Yaml();
-
-            this.putAll(yaml.load(fileInputStream));
-        } catch (Exception e) {
-            this.valid = false;
-            e.printStackTrace();
-        }
-    }
-
-    public LinkedHashMap<String, Object> getAsMap(String key) {
-        //noinspection unchecked
-        return (LinkedHashMap<String, Object>) this.get(key);
-    }
-
-    public void save() {
-        try {
-            var file = new File(this.configPath);
-
-            if (file.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                file.delete();
-            }
-
-            var yaml = new Yaml();
-            var fileOutputStream = new FileOutputStream(file);
-
-            fileOutputStream.write(
-                    yaml.dumpAs(new LinkedHashMap<>(this), Tag.MAP, FlowStyle.BLOCK)
-                            .getBytes(StandardCharsets.UTF_8));
-
-            fileOutputStream.close();
-        } catch (Exception ignore) {
-        }
+        this.remoteAddress = InetAddress.getByName((String) rm.get("Address"));
+        this.remotePort = Short.parseShort(String.valueOf((rm.get("Port"))));
     }
 
     public boolean isValid() {
-        return this.valid;
+        return this.raw.isValid();
+    }
+
+    public void save() {
+        this.raw.save();
     }
 }

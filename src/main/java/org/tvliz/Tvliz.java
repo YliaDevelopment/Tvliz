@@ -1,23 +1,17 @@
 package org.tvliz;
 
 import com.whirvis.jraknet.RakNetException;
+import com.whirvis.jraknet.identifier.Identifier;
 import com.whirvis.jraknet.server.RakNetServer;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 
 public class Tvliz {
-
-    private final RakNetServer server;
-
-    public Tvliz(RakNetServer server) throws RakNetException {
-        this.server = server;
-        this.getServer().addListener(new TvlizServerListener(this));
-        this.server.start();
-    }
-
-    public static void main(String[] args) throws ParseException, IOException {
-        var server = new TvlizServer();
+    public static void main(String[] args) throws ParseException, IOException, RakNetException {
+        var identifier = new Identifier("Tviliz Proxy");
+        var rakServer = new RakNetServer(19132, 1000, 999, identifier);
+        var server = new TvlizServer(rakServer);
 
         server.init(args);
 
@@ -29,9 +23,4 @@ public class Tvliz {
 
         server.destroy();
     }
-
-    public RakNetServer getServer() {
-        return server;
-    }
-
 }
