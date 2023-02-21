@@ -1,3 +1,5 @@
+# I got this from Nukkit's source code.
+
 .settings/
 target/
 .classpath
@@ -9,10 +11,6 @@ target
 target/*
 build
 build/*
-nukkit-core/build
-nukkit-core/build/*
-nukkit-loader/build
-nukkit-loader/build/*
 bin/
 
 # Mobile Tools for Java (J2ME)
@@ -33,22 +31,8 @@ hs_err_pid*
 .idea/*
 
 # Eclipse Platforms
-.classpath
-.project
+project
 .settings
 .settings/*
 
-# Generated files
-banned-ips.json
-banned-players.json
-/nukkit.yml
-ops.txt
-server.log
-server.properties
-white-list.txt
-worlds
-worlds/*
-plugins
-plugins/*
-players
-players/*
+tvliz.yml
