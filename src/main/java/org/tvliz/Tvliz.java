@@ -8,19 +8,19 @@ import org.apache.commons.cli.ParseException;
 import java.io.IOException;
 
 public class Tvliz {
-    public static void main(String[] args) throws ParseException, IOException, RakNetException {
-        var identifier = new Identifier("Tviliz Proxy");
-        var rakServer = new RakNetServer(19132, 1000, 999, identifier);
-        var server = new TvlizServer(rakServer);
+  public static void main(String[] args) throws ParseException, IOException, RakNetException {
+    var identifier = new Identifier("Tviliz Proxy");
+    var rakServer = new RakNetServer(19132, 1000, 999, identifier);
+    var server = new TvlizServer(rakServer);
 
-        server.init(args);
+    server.init(args);
 
-        server.start();
+    server.start();
 
-        while (server.isRunning()) {
-            server.tick();
-        }
-
-        server.destroy();
+    while (server.isRunning()) {
+      server.tick();
     }
+
+    server.destroy();
+  }
 }

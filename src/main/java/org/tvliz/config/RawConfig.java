@@ -12,74 +12,74 @@ import java.util.LinkedHashMap;
 
 public class RawConfig extends LinkedHashMap<String, Object> {
 
-    private final String configPath;
-    private boolean valid;
+  private final String configPath;
+  private boolean valid;
 
-    public RawConfig(String path) {
-        this(path, null);
+  public RawConfig(String path) {
+    this(path, null);
+  }
+
+  public RawConfig(File file) {
+    this(file.getAbsolutePath(), null);
+  }
+
+  public RawConfig(String path, LinkedHashMap<String, Object> defaults) {
+    this.configPath = path;
+    this.valid = true;
+
+    if (defaults != null) {
+      this.putAll(defaults);
     }
 
-    public RawConfig(File file) {
-        this(file.getAbsolutePath(), null);
+    this.init();
+  }
+
+  private void init() {
+    if (this.configPath == null ||
+        this.configPath.isEmpty()) {
+
+      this.valid = false;
+      return;
     }
 
-    public RawConfig(String path, LinkedHashMap<String, Object> defaults) {
-        this.configPath = path;
-        this.valid = true;
+    try {
+      var fileInputStream = new FileInputStream(this.configPath);
+      var yaml = new Yaml();
 
-        if (defaults != null) {
-            this.putAll(defaults);
-        }
-
-        this.init();
+      this.putAll(yaml.load(fileInputStream));
+    } catch (Exception e) {
+      this.valid = false;
+      e.printStackTrace();
     }
+  }
 
-    private void init() {
-        if (this.configPath == null ||
-                this.configPath.isEmpty()) {
+  public LinkedHashMap<String, Object> getAsMap(String key) {
+    // noinspection unchecked
+    return (LinkedHashMap<String, Object>) this.get(key);
+  }
 
-            this.valid = false;
-            return;
-        }
+  public void save() {
+    try {
+      var file = new File(this.configPath);
 
-        try {
-            var fileInputStream = new FileInputStream(this.configPath);
-            var yaml = new Yaml();
+      if (file.exists()) {
+        // noinspection ResultOfMethodCallIgnored
+        file.delete();
+      }
 
-            this.putAll(yaml.load(fileInputStream));
-        } catch (Exception e) {
-            this.valid = false;
-            e.printStackTrace();
-        }
+      var yaml = new Yaml();
+      var fileOutputStream = new FileOutputStream(file);
+
+      fileOutputStream.write(
+          yaml.dumpAs(new LinkedHashMap<>(this), Tag.MAP, FlowStyle.BLOCK)
+              .getBytes(StandardCharsets.UTF_8));
+
+      fileOutputStream.close();
+    } catch (Exception ignore) {
     }
+  }
 
-    public LinkedHashMap<String, Object> getAsMap(String key) {
-        //noinspection unchecked
-        return (LinkedHashMap<String, Object>) this.get(key);
-    }
-
-    public void save() {
-        try {
-            var file = new File(this.configPath);
-
-            if (file.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                file.delete();
-            }
-
-            var yaml = new Yaml();
-            var fileOutputStream = new FileOutputStream(file);
-
-            fileOutputStream.write(
-                    yaml.dumpAs(new LinkedHashMap<>(this), Tag.MAP, FlowStyle.BLOCK)
-                            .getBytes(StandardCharsets.UTF_8));
-
-            fileOutputStream.close();
-        } catch (Exception ignore) {
-        }
-    }
-
-    public boolean isValid() {
-        return this.valid;
-    }
+  public boolean isValid() {
+    return this.valid;
+  }
 }
